@@ -56,8 +56,13 @@ contract Casino {
       return numberGenerated;
    }
 
+   // Modifier to only allow the execution of functions when the bets are completed
+     modifier onEndGame(){
+        if(numberOfBets >= maxAmountOfBets) _;
+     }
+     
    // Sends the corresponding ether to each winner depending on the total bets
-   function distributePrizes(uint256 winningNumber) public {
+   function distributePrizes(uint256 winningNumber) onEndGame {
       address[100] memory winners;
       uint256 count = 0; // This is the count for the array of winners
       for(uint256 i = 0; i < players.length; i++){
@@ -77,7 +82,12 @@ contract Casino {
          winners[j].transfer(winnerEtherAmount);
       }
 
-      totalBet = 0;
-      numberOfBets = 0;
+      resetData();
+   }
+
+   function resetData(){
+     players.length = 0; // Delete all the players array
+     totalBet = 0;
+     numberOfBets = 0;
    }
 }
