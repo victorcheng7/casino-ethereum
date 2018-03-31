@@ -50,17 +50,18 @@ contract Casino {
       return false;
    }
 
+   // Modifier to only allow the execution of functions when the bets are completed
+   modifier onEndGame(){
+      if(numberOfBets >= maxAmountOfBets) _;
+   }
+
    // Generates a number between 1 and 10 that will be the winner
-   function generateNumberWinner() public constant returns(uint256){
+   function generateNumberWinner() public constant returns(uint256) { //TODO add onEndGame here
       uint256 numberGenerated = block.number % 10 + 1; // TODO change to be truly random
       return numberGenerated;
    }
 
-   // Modifier to only allow the execution of functions when the bets are completed
-     modifier onEndGame(){
-        if(numberOfBets >= maxAmountOfBets) _;
-     }
-     
+
    // Sends the corresponding ether to each winner depending on the total bets
    function distributePrizes(uint256 winningNumber) onEndGame {
       address[100] memory winners;
@@ -73,7 +74,6 @@ contract Casino {
          }
          delete playerInfo[playerAddress]; // Delete all the players
       }
-      players.length = 0; // Delete all the players array
       assert(winners.length > 0); //TODO double check so you don't do divide by 0
       uint256 winnerEtherAmount = totalBet / winners.length; // How much each winner gets
 
@@ -82,12 +82,8 @@ contract Casino {
          winners[j].transfer(winnerEtherAmount);
       }
 
-      resetData();
-   }
-
-   function resetData(){
-     players.length = 0; // Delete all the players array
-     totalBet = 0;
-     numberOfBets = 0;
+      players.length = 0; // Delete all the players array
+      totalBet = 0;
+      numberOfBets = 0;
    }
 }
