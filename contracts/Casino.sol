@@ -1,4 +1,4 @@
-pragma solidity 0.4.20;
+pragma solidity ^0.4.20;
 
 contract Casino {
    address public owner;
@@ -14,11 +14,14 @@ contract Casino {
    }
    // The address of the player => user info
    mapping(address => Player) public playerInfo;
+   function() public payable {} //Fallback function in case someone sends eth to this contract
+
 
    function Casino(uint256 _minimumBet) public {
       owner = msg.sender;
       if(_minimumBet != 0) minimumBet = _minimumBet;
    }
+
    function kill() public {
       if(msg.sender == owner) selfdestruct(owner);
    }
@@ -50,6 +53,7 @@ contract Casino {
    // Generates a number between 1 and 10 that will be the winner
    function generateNumberWinner() public constant returns(uint256){
       uint256 numberGenerated = block.number % 10 + 1; // TODO change to be truly random
+      return numberGenerated;
    }
 
    // Sends the corresponding ether to each winner depending on the total bets
@@ -65,11 +69,15 @@ contract Casino {
          delete playerInfo[playerAddress]; // Delete all the players
       }
       players.length = 0; // Delete all the players array
+      assert(winners.length > 0); //TODO double check so you don't do divide by 0
       uint256 winnerEtherAmount = totalBet / winners.length; // How much each winner gets
+
       for(uint256 j = 0; j < count; j++){
          if(winners[j] != address(0)) // Check that the address in this fixed array is not empty
          winners[j].transfer(winnerEtherAmount);
       }
+
+      totalBet = 0;
+      numberOfBets = 0;
    }
-}
 }
