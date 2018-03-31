@@ -34,7 +34,10 @@ contract Casino {
       players.push(msg.sender);
       totalBet += msg.value;
 
-      if(numberOfBets >= maxAmountOfBets) generateNumberWinner();
+      if(numberOfBets >= maxAmountOfBets) {
+          uint256 randomNumber = generateNumberWinner();
+          distributePrizes(randomNumber);
+      }
    }
 
    function checkPlayerExists(address player) public constant returns(bool){
@@ -45,8 +48,28 @@ contract Casino {
    }
 
    // Generates a number between 1 and 10 that will be the winner
-   function generateNumberWinner() public {
-      uint256 numberGenerated = block.number % 10 + 1; // TODO change to be random
-      distributePrizes(numberGenerated);
+   function generateNumberWinner() public constant returns(uint256){
+      uint256 numberGenerated = block.number % 10 + 1; // TODO change to be truly random
    }
+
+   // Sends the corresponding ether to each winner depending on the total bets
+   function distributePrizes(uint256 winningNumber) public {
+      address[100] memory winners;
+      uint256 count = 0; // This is the count for the array of winners
+      for(uint256 i = 0; i < players.length; i++){
+         address playerAddress = players[i];
+         if(playerInfo[playerAddress].numberSelected == winningNumber){
+            winners[count] = playerAddress;
+            count++;
+         }
+         delete playerInfo[playerAddress]; // Delete all the players
+      }
+      players.length = 0; // Delete all the players array
+      uint256 winnerEtherAmount = totalBet / winners.length; // How much each winner gets
+      for(uint256 j = 0; j < count; j++){
+         if(winners[j] != address(0)) // Check that the address in this fixed array is not empty
+         winners[j].transfer(winnerEtherAmount);
+      }
+   }
+}
 }
