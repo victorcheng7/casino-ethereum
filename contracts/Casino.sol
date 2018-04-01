@@ -5,7 +5,7 @@ contract Casino {
    uint256 public minimumBet;
    uint256 public totalBet;
    uint256 public numberOfBets;
-   uint256 public maxAmountOfBets = 100;
+   uint256 public maxAmountOfBets = 5;
    address[] public players;
 
    struct Player {
@@ -64,7 +64,7 @@ contract Casino {
 
    // Sends the corresponding ether to each winner depending on the total bets
    function distributePrizes(uint256 winningNumber) onEndGame {
-      address[100] memory winners;
+      address[5] memory winners;
       uint256 count = 0; // This is the count for the array of winners
       for(uint256 i = 0; i < players.length; i++){
          address playerAddress = players[i];
